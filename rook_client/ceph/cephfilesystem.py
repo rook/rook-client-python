@@ -87,14 +87,17 @@ class MetadataServer(CrdObject):
 
 class Replicated(CrdObject):
     _properties = [
-        ('size', 'size', int, False, False)
+        ('size', 'size', int, False, False),
+        ('requireSafeReplicaSize', 'requireSafeReplicaSize', bool, False, False)
     ]        
 
     def __init__(self,
                  size=_omit,  # type: Optional[int]
+                 requireSafeReplicaSize=_omit,  # type: Optional[bool]
                  ):
         super(Replicated, self).__init__(
             size=size,
+            requireSafeReplicaSize=requireSafeReplicaSize,
         )
 
     @property
@@ -106,6 +109,16 @@ class Replicated(CrdObject):
     def size(self, new_val):
         # type: (Optional[int]) -> None
         self._size = new_val
+    
+    @property
+    def requireSafeReplicaSize(self):
+        # type: () -> bool
+        return self._property_impl('requireSafeReplicaSize')
+    
+    @requireSafeReplicaSize.setter
+    def requireSafeReplicaSize(self, new_val):
+        # type: (Optional[bool]) -> None
+        self._requireSafeReplicaSize = new_val
 
 
 class ErasureCoded(CrdObject):
@@ -148,18 +161,21 @@ class MetadataPool(CrdObject):
     _properties = [
         ('failureDomain', 'failureDomain', str, False, False),
         ('replicated', 'replicated', Replicated, False, False),
-        ('erasureCoded', 'erasureCoded', ErasureCoded, False, False)
+        ('erasureCoded', 'erasureCoded', ErasureCoded, False, False),
+        ('compressionMode', 'compressionMode', str, False, False)
     ]        
 
     def __init__(self,
                  failureDomain=_omit,  # type: Optional[str]
                  replicated=_omit,  # type: Optional[Replicated]
                  erasureCoded=_omit,  # type: Optional[ErasureCoded]
+                 compressionMode=_omit,  # type: Optional[str]
                  ):
         super(MetadataPool, self).__init__(
             failureDomain=failureDomain,
             replicated=replicated,
             erasureCoded=erasureCoded,
+            compressionMode=compressionMode,
         )
 
     @property
@@ -191,24 +207,40 @@ class MetadataPool(CrdObject):
     def erasureCoded(self, new_val):
         # type: (Optional[ErasureCoded]) -> None
         self._erasureCoded = new_val
+    
+    @property
+    def compressionMode(self):
+        # type: () -> str
+        return self._property_impl('compressionMode')
+    
+    @compressionMode.setter
+    def compressionMode(self, new_val):
+        # type: (Optional[str]) -> None
+        self._compressionMode = new_val
 
 
 class DataPoolsItem(CrdObject):
     _properties = [
         ('failureDomain', 'failureDomain', str, False, False),
         ('replicated', 'replicated', Replicated, False, False),
-        ('erasureCoded', 'erasureCoded', ErasureCoded, False, False)
+        ('erasureCoded', 'erasureCoded', ErasureCoded, False, False),
+        ('compressionMode', 'compressionMode', str, False, False),
+        ('parameters', 'parameters', object, False, False)
     ]        
 
     def __init__(self,
                  failureDomain=_omit,  # type: Optional[str]
                  replicated=_omit,  # type: Optional[Replicated]
                  erasureCoded=_omit,  # type: Optional[ErasureCoded]
+                 compressionMode=_omit,  # type: Optional[str]
+                 parameters=_omit,  # type: Optional[Any]
                  ):
         super(DataPoolsItem, self).__init__(
             failureDomain=failureDomain,
             replicated=replicated,
             erasureCoded=erasureCoded,
+            compressionMode=compressionMode,
+            parameters=parameters,
         )
 
     @property
@@ -240,6 +272,26 @@ class DataPoolsItem(CrdObject):
     def erasureCoded(self, new_val):
         # type: (Optional[ErasureCoded]) -> None
         self._erasureCoded = new_val
+    
+    @property
+    def compressionMode(self):
+        # type: () -> str
+        return self._property_impl('compressionMode')
+    
+    @compressionMode.setter
+    def compressionMode(self, new_val):
+        # type: (Optional[str]) -> None
+        self._compressionMode = new_val
+    
+    @property
+    def parameters(self):
+        # type: () -> Any
+        return self._property_impl('parameters')
+    
+    @parameters.setter
+    def parameters(self, new_val):
+        # type: (Optional[Any]) -> None
+        self._parameters = new_val
 
 
 class DataPoolsList(CrdObjectList):

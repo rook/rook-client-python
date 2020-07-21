@@ -13,16 +13,19 @@ from .._helper import _omit, CrdObject, CrdObjectList, CrdClass
 class Replicated(CrdObject):
     _properties = [
         ('size', 'size', int, False, False),
-        ('targetSizeRatio', 'targetSizeRatio', float, False, False)
+        ('targetSizeRatio', 'targetSizeRatio', float, False, False),
+        ('requireSafeReplicaSize', 'requireSafeReplicaSize', bool, False, False)
     ]        
 
     def __init__(self,
                  size=_omit,  # type: Optional[int]
                  targetSizeRatio=_omit,  # type: Optional[float]
+                 requireSafeReplicaSize=_omit,  # type: Optional[bool]
                  ):
         super(Replicated, self).__init__(
             size=size,
             targetSizeRatio=targetSizeRatio,
+            requireSafeReplicaSize=requireSafeReplicaSize,
         )
 
     @property
@@ -44,6 +47,16 @@ class Replicated(CrdObject):
     def targetSizeRatio(self, new_val):
         # type: (Optional[float]) -> None
         self._targetSizeRatio = new_val
+    
+    @property
+    def requireSafeReplicaSize(self):
+        # type: () -> bool
+        return self._property_impl('requireSafeReplicaSize')
+    
+    @requireSafeReplicaSize.setter
+    def requireSafeReplicaSize(self, new_val):
+        # type: (Optional[bool]) -> None
+        self._requireSafeReplicaSize = new_val
 
 
 class ErasureCoded(CrdObject):
@@ -86,18 +99,24 @@ class Spec(CrdObject):
     _properties = [
         ('failureDomain', 'failureDomain', str, False, False),
         ('replicated', 'replicated', Replicated, False, False),
-        ('erasureCoded', 'erasureCoded', ErasureCoded, False, False)
+        ('erasureCoded', 'erasureCoded', ErasureCoded, False, False),
+        ('compressionMode', 'compressionMode', str, False, False),
+        ('parameters', 'parameters', object, False, False)
     ]        
 
     def __init__(self,
                  failureDomain=_omit,  # type: Optional[str]
                  replicated=_omit,  # type: Optional[Replicated]
                  erasureCoded=_omit,  # type: Optional[ErasureCoded]
+                 compressionMode=_omit,  # type: Optional[str]
+                 parameters=_omit,  # type: Optional[Any]
                  ):
         super(Spec, self).__init__(
             failureDomain=failureDomain,
             replicated=replicated,
             erasureCoded=erasureCoded,
+            compressionMode=compressionMode,
+            parameters=parameters,
         )
 
     @property
@@ -129,6 +148,26 @@ class Spec(CrdObject):
     def erasureCoded(self, new_val):
         # type: (Optional[ErasureCoded]) -> None
         self._erasureCoded = new_val
+    
+    @property
+    def compressionMode(self):
+        # type: () -> str
+        return self._property_impl('compressionMode')
+    
+    @compressionMode.setter
+    def compressionMode(self, new_val):
+        # type: (Optional[str]) -> None
+        self._compressionMode = new_val
+    
+    @property
+    def parameters(self):
+        # type: () -> Any
+        return self._property_impl('parameters')
+    
+    @parameters.setter
+    def parameters(self, new_val):
+        # type: (Optional[Any]) -> None
+        self._parameters = new_val
 
 
 class CephBlockPool(CrdClass):

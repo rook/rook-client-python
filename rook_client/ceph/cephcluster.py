@@ -691,19 +691,102 @@ class Storage(CrdObject):
         self._storageClassDeviceSets = new_val
 
 
+class DriveGroupsItem(CrdObject):
+    _properties = [
+        ('name', 'name', str, True, False),
+        ('spec', 'spec', object, True, False),
+        ('placement', 'placement', object, False, False)
+    ]        
+
+    def __init__(self,
+                 name,  # type: str
+                 spec,  # type: Any
+                 placement=_omit,  # type: Optional[Any]
+                 ):
+        super(DriveGroupsItem, self).__init__(
+            name=name,
+            spec=spec,
+            placement=placement,
+        )
+
+    @property
+    def name(self):
+        # type: () -> str
+        return self._property_impl('name')
+    
+    @name.setter
+    def name(self, new_val):
+        # type: (str) -> None
+        self._name = new_val
+    
+    @property
+    def spec(self):
+        # type: () -> Any
+        return self._property_impl('spec')
+    
+    @spec.setter
+    def spec(self, new_val):
+        # type: (Any) -> None
+        self._spec = new_val
+    
+    @property
+    def placement(self):
+        # type: () -> Any
+        return self._property_impl('placement')
+    
+    @placement.setter
+    def placement(self, new_val):
+        # type: (Optional[Any]) -> None
+        self._placement = new_val
+
+
+class DriveGroupsList(CrdObjectList):
+    _items_type = DriveGroupsItem
+
+
+class ExternalMgrEndpointsItem(CrdObject):
+    _properties = [
+        ('ip', 'ip', str, False, False)
+    ]        
+
+    def __init__(self,
+                 ip=_omit,  # type: Optional[str]
+                 ):
+        super(ExternalMgrEndpointsItem, self).__init__(
+            ip=ip,
+        )
+
+    @property
+    def ip(self):
+        # type: () -> str
+        return self._property_impl('ip')
+    
+    @ip.setter
+    def ip(self, new_val):
+        # type: (Optional[str]) -> None
+        self._ip = new_val
+
+
+class ExternalMgrEndpointsList(CrdObjectList):
+    _items_type = ExternalMgrEndpointsItem
+
+
 class Monitoring(CrdObject):
     _properties = [
         ('enabled', 'enabled', bool, False, False),
-        ('rulesNamespace', 'rulesNamespace', str, False, False)
+        ('rulesNamespace', 'rulesNamespace', str, False, False),
+        ('externalMgrEndpoints', 'externalMgrEndpoints', ExternalMgrEndpointsList, False, False)
     ]        
 
     def __init__(self,
                  enabled=_omit,  # type: Optional[bool]
                  rulesNamespace=_omit,  # type: Optional[str]
+                 externalMgrEndpoints=_omit,  # type: Optional[Union[List[ExternalMgrEndpointsItem], CrdObjectList]]
                  ):
         super(Monitoring, self).__init__(
             enabled=enabled,
             rulesNamespace=rulesNamespace,
+            externalMgrEndpoints=externalMgrEndpoints,
         )
 
     @property
@@ -725,29 +808,16 @@ class Monitoring(CrdObject):
     def rulesNamespace(self, new_val):
         # type: (Optional[str]) -> None
         self._rulesNamespace = new_val
-
-
-class RbdMirroring(CrdObject):
-    _properties = [
-        ('workers', 'workers', int, False, False)
-    ]        
-
-    def __init__(self,
-                 workers=_omit,  # type: Optional[int]
-                 ):
-        super(RbdMirroring, self).__init__(
-            workers=workers,
-        )
-
-    @property
-    def workers(self):
-        # type: () -> int
-        return self._property_impl('workers')
     
-    @workers.setter
-    def workers(self, new_val):
-        # type: (Optional[int]) -> None
-        self._workers = new_val
+    @property
+    def externalMgrEndpoints(self):
+        # type: () -> Union[List[ExternalMgrEndpointsItem], CrdObjectList]
+        return self._property_impl('externalMgrEndpoints')
+    
+    @externalMgrEndpoints.setter
+    def externalMgrEndpoints(self, new_val):
+        # type: (Optional[Union[List[ExternalMgrEndpointsItem], CrdObjectList]]) -> None
+        self._externalMgrEndpoints = new_val
 
 
 class External(CrdObject):
@@ -773,6 +843,29 @@ class External(CrdObject):
         self._enable = new_val
 
 
+class CleanupPolicy(CrdObject):
+    _properties = [
+        ('confirmation', 'confirmation', str, False, False)
+    ]        
+
+    def __init__(self,
+                 confirmation=_omit,  # type: Optional[str]
+                 ):
+        super(CleanupPolicy, self).__init__(
+            confirmation=confirmation,
+        )
+
+    @property
+    def confirmation(self):
+        # type: () -> str
+        return self._property_impl('confirmation')
+    
+    @confirmation.setter
+    def confirmation(self, new_val):
+        # type: (Optional[str]) -> None
+        self._confirmation = new_val
+
+
 class Spec(CrdObject):
     _properties = [
         ('annotations', 'annotations', object, False, False),
@@ -784,14 +877,16 @@ class Spec(CrdObject):
         ('continueUpgradeAfterChecksEvenIfNotHealthy', 'continueUpgradeAfterChecksEvenIfNotHealthy', bool, False, False),
         ('mon', 'mon', Mon, False, False),
         ('mgr', 'mgr', Mgr, False, False),
-        ('network', 'network', Network, False, False),
+        ('network', 'network', Network, False, True),
         ('storage', 'storage', Storage, False, False),
+        ('driveGroups', 'driveGroups', DriveGroupsList, False, True),
         ('monitoring', 'monitoring', Monitoring, False, False),
-        ('rbdMirroring', 'rbdMirroring', RbdMirroring, False, False),
         ('removeOSDsIfOutAndSafeToRemove', 'removeOSDsIfOutAndSafeToRemove', bool, False, False),
         ('external', 'external', External, False, False),
+        ('cleanupPolicy', 'cleanupPolicy', CleanupPolicy, False, False),
         ('placement', 'placement', object, False, False),
-        ('resources', 'resources', object, False, False)
+        ('resources', 'resources', object, False, False),
+        ('healthCheck', 'healthCheck', object, False, False)
     ]        
 
     def __init__(self,
@@ -806,12 +901,14 @@ class Spec(CrdObject):
                  mgr=_omit,  # type: Optional[Mgr]
                  network=_omit,  # type: Optional[Network]
                  storage=_omit,  # type: Optional[Storage]
+                 driveGroups=_omit,  # type: Optional[Union[List[DriveGroupsItem], CrdObjectList]]
                  monitoring=_omit,  # type: Optional[Monitoring]
-                 rbdMirroring=_omit,  # type: Optional[RbdMirroring]
                  removeOSDsIfOutAndSafeToRemove=_omit,  # type: Optional[bool]
                  external=_omit,  # type: Optional[External]
+                 cleanupPolicy=_omit,  # type: Optional[CleanupPolicy]
                  placement=_omit,  # type: Optional[Any]
                  resources=_omit,  # type: Optional[Any]
+                 healthCheck=_omit,  # type: Optional[Any]
                  ):
         super(Spec, self).__init__(
             annotations=annotations,
@@ -825,12 +922,14 @@ class Spec(CrdObject):
             mgr=mgr,
             network=network,
             storage=storage,
+            driveGroups=driveGroups,
             monitoring=monitoring,
-            rbdMirroring=rbdMirroring,
             removeOSDsIfOutAndSafeToRemove=removeOSDsIfOutAndSafeToRemove,
             external=external,
+            cleanupPolicy=cleanupPolicy,
             placement=placement,
             resources=resources,
+            healthCheck=healthCheck,
         )
 
     @property
@@ -925,7 +1024,7 @@ class Spec(CrdObject):
     
     @property
     def network(self):
-        # type: () -> Network
+        # type: () -> Optional[Network]
         return self._property_impl('network')
     
     @network.setter
@@ -944,6 +1043,16 @@ class Spec(CrdObject):
         self._storage = new_val
     
     @property
+    def driveGroups(self):
+        # type: () -> Optional[Union[List[DriveGroupsItem], CrdObjectList]]
+        return self._property_impl('driveGroups')
+    
+    @driveGroups.setter
+    def driveGroups(self, new_val):
+        # type: (Optional[Union[List[DriveGroupsItem], CrdObjectList]]) -> None
+        self._driveGroups = new_val
+    
+    @property
     def monitoring(self):
         # type: () -> Monitoring
         return self._property_impl('monitoring')
@@ -952,16 +1061,6 @@ class Spec(CrdObject):
     def monitoring(self, new_val):
         # type: (Optional[Monitoring]) -> None
         self._monitoring = new_val
-    
-    @property
-    def rbdMirroring(self):
-        # type: () -> RbdMirroring
-        return self._property_impl('rbdMirroring')
-    
-    @rbdMirroring.setter
-    def rbdMirroring(self, new_val):
-        # type: (Optional[RbdMirroring]) -> None
-        self._rbdMirroring = new_val
     
     @property
     def removeOSDsIfOutAndSafeToRemove(self):
@@ -984,6 +1083,16 @@ class Spec(CrdObject):
         self._external = new_val
     
     @property
+    def cleanupPolicy(self):
+        # type: () -> CleanupPolicy
+        return self._property_impl('cleanupPolicy')
+    
+    @cleanupPolicy.setter
+    def cleanupPolicy(self, new_val):
+        # type: (Optional[CleanupPolicy]) -> None
+        self._cleanupPolicy = new_val
+    
+    @property
     def placement(self):
         # type: () -> Any
         return self._property_impl('placement')
@@ -1002,6 +1111,16 @@ class Spec(CrdObject):
     def resources(self, new_val):
         # type: (Optional[Any]) -> None
         self._resources = new_val
+    
+    @property
+    def healthCheck(self):
+        # type: () -> Any
+        return self._property_impl('healthCheck')
+    
+    @healthCheck.setter
+    def healthCheck(self, new_val):
+        # type: (Optional[Any]) -> None
+        self._healthCheck = new_val
 
 
 class CephCluster(CrdClass):

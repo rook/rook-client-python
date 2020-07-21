@@ -10,6 +10,33 @@ except ImportError:
 
 from .._helper import _omit, CrdObject, CrdObjectList, CrdClass
 
+class ExternalRgwEndpointsItem(CrdObject):
+    _properties = [
+        ('ip', 'ip', str, False, False)
+    ]        
+
+    def __init__(self,
+                 ip=_omit,  # type: Optional[str]
+                 ):
+        super(ExternalRgwEndpointsItem, self).__init__(
+            ip=ip,
+        )
+
+    @property
+    def ip(self):
+        # type: () -> str
+        return self._property_impl('ip')
+    
+    @ip.setter
+    def ip(self, new_val):
+        # type: (Optional[str]) -> None
+        self._ip = new_val
+
+
+class ExternalRgwEndpointsList(CrdObjectList):
+    _items_type = ExternalRgwEndpointsItem
+
+
 class Gateway(CrdObject):
     _properties = [
         ('type', 'type', str, False, False),
@@ -17,6 +44,7 @@ class Gateway(CrdObject):
         ('port', 'port', int, False, False),
         ('securePort', 'securePort', object, False, False),
         ('instances', 'instances', int, False, False),
+        ('externalRgwEndpoints', 'externalRgwEndpoints', ExternalRgwEndpointsList, False, False),
         ('annotations', 'annotations', object, False, False),
         ('placement', 'placement', object, False, False),
         ('resources', 'resources', object, False, False)
@@ -28,6 +56,7 @@ class Gateway(CrdObject):
                  port=_omit,  # type: Optional[int]
                  securePort=_omit,  # type: Optional[Any]
                  instances=_omit,  # type: Optional[int]
+                 externalRgwEndpoints=_omit,  # type: Optional[Union[List[ExternalRgwEndpointsItem], CrdObjectList]]
                  annotations=_omit,  # type: Optional[Any]
                  placement=_omit,  # type: Optional[Any]
                  resources=_omit,  # type: Optional[Any]
@@ -38,6 +67,7 @@ class Gateway(CrdObject):
             port=port,
             securePort=securePort,
             instances=instances,
+            externalRgwEndpoints=externalRgwEndpoints,
             annotations=annotations,
             placement=placement,
             resources=resources,
@@ -94,6 +124,16 @@ class Gateway(CrdObject):
         self._instances = new_val
     
     @property
+    def externalRgwEndpoints(self):
+        # type: () -> Union[List[ExternalRgwEndpointsItem], CrdObjectList]
+        return self._property_impl('externalRgwEndpoints')
+    
+    @externalRgwEndpoints.setter
+    def externalRgwEndpoints(self, new_val):
+        # type: (Optional[Union[List[ExternalRgwEndpointsItem], CrdObjectList]]) -> None
+        self._externalRgwEndpoints = new_val
+    
+    @property
     def annotations(self):
         # type: () -> Any
         return self._property_impl('annotations')
@@ -126,14 +166,17 @@ class Gateway(CrdObject):
 
 class Replicated(CrdObject):
     _properties = [
-        ('size', 'size', int, False, False)
+        ('size', 'size', int, False, False),
+        ('requireSafeReplicaSize', 'requireSafeReplicaSize', bool, False, False)
     ]        
 
     def __init__(self,
                  size=_omit,  # type: Optional[int]
+                 requireSafeReplicaSize=_omit,  # type: Optional[bool]
                  ):
         super(Replicated, self).__init__(
             size=size,
+            requireSafeReplicaSize=requireSafeReplicaSize,
         )
 
     @property
@@ -145,6 +188,16 @@ class Replicated(CrdObject):
     def size(self, new_val):
         # type: (Optional[int]) -> None
         self._size = new_val
+    
+    @property
+    def requireSafeReplicaSize(self):
+        # type: () -> bool
+        return self._property_impl('requireSafeReplicaSize')
+    
+    @requireSafeReplicaSize.setter
+    def requireSafeReplicaSize(self, new_val):
+        # type: (Optional[bool]) -> None
+        self._requireSafeReplicaSize = new_val
 
 
 class ErasureCoded(CrdObject):
@@ -187,18 +240,24 @@ class MetadataPool(CrdObject):
     _properties = [
         ('failureDomain', 'failureDomain', str, False, False),
         ('replicated', 'replicated', Replicated, False, False),
-        ('erasureCoded', 'erasureCoded', ErasureCoded, False, False)
+        ('erasureCoded', 'erasureCoded', ErasureCoded, False, False),
+        ('compressionMode', 'compressionMode', str, False, False),
+        ('parameters', 'parameters', object, False, False)
     ]        
 
     def __init__(self,
                  failureDomain=_omit,  # type: Optional[str]
                  replicated=_omit,  # type: Optional[Replicated]
                  erasureCoded=_omit,  # type: Optional[ErasureCoded]
+                 compressionMode=_omit,  # type: Optional[str]
+                 parameters=_omit,  # type: Optional[Any]
                  ):
         super(MetadataPool, self).__init__(
             failureDomain=failureDomain,
             replicated=replicated,
             erasureCoded=erasureCoded,
+            compressionMode=compressionMode,
+            parameters=parameters,
         )
 
     @property
@@ -230,24 +289,50 @@ class MetadataPool(CrdObject):
     def erasureCoded(self, new_val):
         # type: (Optional[ErasureCoded]) -> None
         self._erasureCoded = new_val
+    
+    @property
+    def compressionMode(self):
+        # type: () -> str
+        return self._property_impl('compressionMode')
+    
+    @compressionMode.setter
+    def compressionMode(self, new_val):
+        # type: (Optional[str]) -> None
+        self._compressionMode = new_val
+    
+    @property
+    def parameters(self):
+        # type: () -> Any
+        return self._property_impl('parameters')
+    
+    @parameters.setter
+    def parameters(self, new_val):
+        # type: (Optional[Any]) -> None
+        self._parameters = new_val
 
 
 class DataPool(CrdObject):
     _properties = [
         ('failureDomain', 'failureDomain', str, False, False),
         ('replicated', 'replicated', Replicated, False, False),
-        ('erasureCoded', 'erasureCoded', ErasureCoded, False, False)
+        ('erasureCoded', 'erasureCoded', ErasureCoded, False, False),
+        ('compressionMode', 'compressionMode', str, False, False),
+        ('parameters', 'parameters', object, False, False)
     ]        
 
     def __init__(self,
                  failureDomain=_omit,  # type: Optional[str]
                  replicated=_omit,  # type: Optional[Replicated]
                  erasureCoded=_omit,  # type: Optional[ErasureCoded]
+                 compressionMode=_omit,  # type: Optional[str]
+                 parameters=_omit,  # type: Optional[Any]
                  ):
         super(DataPool, self).__init__(
             failureDomain=failureDomain,
             replicated=replicated,
             erasureCoded=erasureCoded,
+            compressionMode=compressionMode,
+            parameters=parameters,
         )
 
     @property
@@ -279,6 +364,85 @@ class DataPool(CrdObject):
     def erasureCoded(self, new_val):
         # type: (Optional[ErasureCoded]) -> None
         self._erasureCoded = new_val
+    
+    @property
+    def compressionMode(self):
+        # type: () -> str
+        return self._property_impl('compressionMode')
+    
+    @compressionMode.setter
+    def compressionMode(self, new_val):
+        # type: (Optional[str]) -> None
+        self._compressionMode = new_val
+    
+    @property
+    def parameters(self):
+        # type: () -> Any
+        return self._property_impl('parameters')
+    
+    @parameters.setter
+    def parameters(self, new_val):
+        # type: (Optional[Any]) -> None
+        self._parameters = new_val
+
+
+class Bucket(CrdObject):
+    _properties = [
+        ('enabled', 'enabled', bool, False, False),
+        ('interval', 'interval', str, False, False)
+    ]        
+
+    def __init__(self,
+                 enabled=_omit,  # type: Optional[bool]
+                 interval=_omit,  # type: Optional[str]
+                 ):
+        super(Bucket, self).__init__(
+            enabled=enabled,
+            interval=interval,
+        )
+
+    @property
+    def enabled(self):
+        # type: () -> bool
+        return self._property_impl('enabled')
+    
+    @enabled.setter
+    def enabled(self, new_val):
+        # type: (Optional[bool]) -> None
+        self._enabled = new_val
+    
+    @property
+    def interval(self):
+        # type: () -> str
+        return self._property_impl('interval')
+    
+    @interval.setter
+    def interval(self, new_val):
+        # type: (Optional[str]) -> None
+        self._interval = new_val
+
+
+class HealthCheck(CrdObject):
+    _properties = [
+        ('bucket', 'bucket', Bucket, False, False)
+    ]        
+
+    def __init__(self,
+                 bucket=_omit,  # type: Optional[Bucket]
+                 ):
+        super(HealthCheck, self).__init__(
+            bucket=bucket,
+        )
+
+    @property
+    def bucket(self):
+        # type: () -> Bucket
+        return self._property_impl('bucket')
+    
+    @bucket.setter
+    def bucket(self, new_val):
+        # type: (Optional[Bucket]) -> None
+        self._bucket = new_val
 
 
 class Spec(CrdObject):
@@ -286,7 +450,8 @@ class Spec(CrdObject):
         ('gateway', 'gateway', Gateway, False, False),
         ('metadataPool', 'metadataPool', MetadataPool, False, False),
         ('dataPool', 'dataPool', DataPool, False, False),
-        ('preservePoolsOnDelete', 'preservePoolsOnDelete', bool, False, False)
+        ('preservePoolsOnDelete', 'preservePoolsOnDelete', bool, False, False),
+        ('healthCheck', 'healthCheck', HealthCheck, False, False)
     ]        
 
     def __init__(self,
@@ -294,12 +459,14 @@ class Spec(CrdObject):
                  metadataPool=_omit,  # type: Optional[MetadataPool]
                  dataPool=_omit,  # type: Optional[DataPool]
                  preservePoolsOnDelete=_omit,  # type: Optional[bool]
+                 healthCheck=_omit,  # type: Optional[HealthCheck]
                  ):
         super(Spec, self).__init__(
             gateway=gateway,
             metadataPool=metadataPool,
             dataPool=dataPool,
             preservePoolsOnDelete=preservePoolsOnDelete,
+            healthCheck=healthCheck,
         )
 
     @property
@@ -341,6 +508,16 @@ class Spec(CrdObject):
     def preservePoolsOnDelete(self, new_val):
         # type: (Optional[bool]) -> None
         self._preservePoolsOnDelete = new_val
+    
+    @property
+    def healthCheck(self):
+        # type: () -> HealthCheck
+        return self._property_impl('healthCheck')
+    
+    @healthCheck.setter
+    def healthCheck(self, new_val):
+        # type: (Optional[HealthCheck]) -> None
+        self._healthCheck = new_val
 
 
 class CephObjectStore(CrdClass):
